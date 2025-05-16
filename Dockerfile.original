@@ -1,0 +1,79 @@
+# Dockerfile
+FROM ubuntu:22.04 as cpp-builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    g++ \
+    git \
+    libboost-dev \
+    libboost-system-dev \
+    libboost-filesystem-dev \
+    libboost-program-options-dev \
+    libboost-thread-dev \
+    libssl-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy C++ source files (Root src/cpp for shared libraries)
+COPY src/cpp /app/src/cpp
+COPY CMakeLists.txt /app/
+
+# Build C++ components (e.g., fast_alignment library)
+RUN mkdir -p /app/build_cpp_lib && \
+    cd /app/build_cpp_lib && \
+    cmake /app && \
+    make -j$(nproc)
+
+# Python application image
+FROM python:3.10-slim
+# Using 3.10 to match pyproject.toml (^3.10) and Dockerfile.mac base
+
+WORKDIR /app
+
+# Install system dependencies for Python runtime
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy built C++ libraries from the cpp-builder stage
+COPY --from=cpp-builder /app/build_cpp_lib/lib /usr/local/lib
+# Ensure linker can find them
+RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/cpp_custom_libs.conf && ldconfig
+
+# Install Poetry
+RUN pip install poetry==1.4.2 
+# Match version from main.txt CI and Dockerfile.mac for consistency
+
+# Copy Poetry project files from the openmanufacturing sub-directory
+COPY ./openmanufacturing/pyproject.toml ./openmanufacturing/poetry.lock* /app/openmanufacturing/
+
+# Change working directory to the Poetry project root
+WORKDIR /app/openmanufacturing
+
+# Configure Poetry to not create virtualenvs and install dependencies
+# This installs dependencies into the system Python environment of the Docker image.
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev --no-interaction --no-ansi
+
+# Revert WORKDIR to /app for copying the rest of the application code
+WORKDIR /app
+
+# Copy the entire application code
+# This includes the openmanufacturing package and any other root files like src/main.py
+COPY . /app/
+
+# Set Python path to include the project root for src/main.py and the installed package
+# Poetry install should make the openmanufacturing package available site-wide
+ENV PYTHONPATH=/app
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# Expose port
+EXPOSE 8000
+
+# Run the API server using uvicorn, pointing to the installed package
+# This assumes the openmanufacturing package (from openmanufacturing/src/openmanufacturing) is correctly installed by Poetry
+CMD ["uvicorn", "openmanufacturing.api.main:app", "--host", "0.0.0.0", "--port", "8000"] 

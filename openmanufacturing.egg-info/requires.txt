@@ -1,0 +1,15 @@
+fastapi>=0.100.0
+uvicorn>=0.22.0
+sqlalchemy>=2.0.0
+pydantic>=2.0.0
+passlib>=1.7.4
+python-jose>=3.3.0
+python-multipart>=0.0.6
+aiosmtplib>=2.0.1
+redis>=4.5.0
+pyjwt>=2.6.0
+
+[dev]
+pytest>=7.3.1
+pytest-asyncio>=0.21.0
+httpx>=0.24.1

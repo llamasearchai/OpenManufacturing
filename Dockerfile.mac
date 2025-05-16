@@ -1,0 +1,61 @@
+# Multi-stage build for macOS compatibility
+FROM --platform=linux/amd64 python:3.10-slim AS base
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN pip install poetry==1.4.2
+
+# Copy just dependency files for better caching
+COPY pyproject.toml poetry.lock* /app/
+
+# Configure Poetry to not use virtualenvs
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev --no-interaction --no-ansi
+
+# Build stage for C++ components
+FROM base AS builder
+
+# Install additional build dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    g++ \
+    libboost-dev \
+    libboost-system-dev \
+    libboost-filesystem-dev \
+    libboost-program-options-dev \
+    libboost-thread-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy C++ source files
+COPY src/cpp /app/src/cpp
+COPY CMakeLists.txt /app/
+
+# Build C++ components
+RUN mkdir -p /app/build && \
+    cd /app/build && \
+    cmake .. && \
+    make -j$(nproc)
+
+# Final stage
+FROM base
+
+# Copy built C++ libraries from the builder stage
+COPY --from=builder /app/build/lib /app/lib
+
+# Copy application code
+COPY . /app/
+
+# Set Python path to include installed libraries
+ENV PYTHONPATH=/app
+ENV LD_LIBRARY_PATH=/app/lib:$LD_LIBRARY_PATH
+
+# Run the API server
+CMD ["uvicorn", "openmanufacturing.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
