@@ -7,7 +7,7 @@ setup(
     author="LlamaSearch AI",
     author_email="info@llamasearch.ai",
     url="https://github.com/llamasearchai/OpenManufacturing",
-    packages=find_packages(include=['openmanufacturing', 'openmanufacturing.*']),
+    packages=find_packages(include=["openmanufacturing", "openmanufacturing.*"]),
     include_package_data=True,
     package_data={
         "openmanufacturing": ["py.typed", "ui/dist/*", "ui/dist/**/*"],
@@ -26,7 +26,7 @@ setup(
         "pyjwt>=2.10.0",
         "httpx>=0.28.0",
         "psycopg2-binary>=2.9.9",
-        "prometheus-client>=0.19.0"
+        "prometheus-client>=0.19.0",
     ],
     extras_require={
         "dev": [
@@ -35,7 +35,7 @@ setup(
             "pytest-cov>=4.1.0",
             "black>=23.3.0",
             "mypy>=1.9.0",
-            "ruff>=0.1.0"
+            "ruff>=0.1.0",
         ],
     },
     python_requires=">=3.9",
@@ -53,4 +53,4 @@ setup(
             "openmanufacturing_cli=openmanufacturing.cli:main",
         ],
     },
-) 
+)

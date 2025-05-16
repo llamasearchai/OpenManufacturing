@@ -1,9 +1,15 @@
 """
-API package for OpenManufacturing platform.
+OpenManufacturing API package.
 
-This package contains the API server implementation, dependencies, and route definitions.
+This package contains the FastAPI application, route definitions, and API dependencies.
 """
 
 from . import main
 from . import dependencies
-from . import routes 
+from . import routes
+
+__all__ = [
+    "main",
+    "dependencies",
+    "routes"
+]

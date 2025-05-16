@@ -10,12 +10,12 @@ import os
 import logging
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
-
 # Import the FastAPI app instance
 # This assumes your FastAPI app is defined in openmanufacturing/api/main.py
 from openmanufacturing.api.main import app
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
@@ -35,9 +35,9 @@ if __name__ == "__main__":
         logger.info(f"Running with {workers} workers.")
 
     uvicorn.run(
-        app, 
-        host=host, 
-        port=port, 
+        app,
+        host=host,
+        port=port,
         reload=reload,
-        workers=workers if not reload else 1 # Uvicorn reload mode works best with 1 worker
-    ) 
+        workers=workers if not reload else 1,  # Uvicorn reload mode works best with 1 worker
+    )
