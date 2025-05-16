@@ -1,1 +1,0 @@
-"""UI module for OpenManufacturing (Tauri frontend).""" 
