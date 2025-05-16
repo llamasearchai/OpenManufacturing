@@ -1,12 +1,13 @@
-import cv2
-import numpy as np
-import logging
 import json
+import logging
+import math
 import os
+import random
 from dataclasses import dataclass
 from typing import Tuple
-import random
-import math
+
+import cv2
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -286,7 +287,7 @@ class ImageProcessor:
                     side_x, side_z = x1, y1
                 else:
                     # side_x, side_z = x2, y2 # Commented for F841
-                    _, side_z = x2, y2 # Assign only side_z if side_x is unused
+                    _, side_z = x2, y2  # Assign only side_z if side_x is unused
 
                 # Confidence based on line length
                 side_confidence = min(1.0, max_length / 200)

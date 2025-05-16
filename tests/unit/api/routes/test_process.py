@@ -1,18 +1,19 @@
+import logging
+import uuid
+from datetime import datetime
+from unittest.mock import AsyncMock
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import AsyncMock
-from datetime import datetime
-import uuid
-import logging
 
+from openmanufacturing.api.dependencies import User as PydanticUser
+from openmanufacturing.api.dependencies import get_current_active_user, get_process_manager
 from openmanufacturing.api.main import app
-from openmanufacturing.api.dependencies import get_process_manager, get_current_active_user
+from openmanufacturing.core.process.workflow_manager import ProcessInstance as CoreProcessInstance
 from openmanufacturing.core.process.workflow_manager import (
     ProcessState,
     WorkflowManager,
-    ProcessInstance as CoreProcessInstance,
 )
-from openmanufacturing.api.dependencies import User as PydanticUser
 
 # Set up logger for tests
 logger = logging.getLogger(__name__)

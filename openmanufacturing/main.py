@@ -1,11 +1,12 @@
+import argparse
 import asyncio
 import logging
 import os
-import argparse
-import uvicorn
 import signal
 import sys
-from typing import Dict, Any
+from typing import Any, Dict
+
+import uvicorn
 
 # Configure logging
 logging.basicConfig(
@@ -74,12 +75,12 @@ async def initialize_services(config: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Dictionary of initialized services
     """
-    from openmanufacturing.core.hardware.motion_controller import MotionController
-    from openmanufacturing.core.vision.image_processing import ImageProcessor
-    from openmanufacturing.core.process.calibration import CalibrationProfile
     from openmanufacturing.core.alignment.service import AlignmentService
-    from openmanufacturing.core.process.workflow_manager import WorkflowManager
     from openmanufacturing.core.database.db import init_db
+    from openmanufacturing.core.hardware.motion_controller import MotionController
+    from openmanufacturing.core.process.calibration import CalibrationProfile
+    from openmanufacturing.core.process.workflow_manager import WorkflowManager
+    from openmanufacturing.core.vision.image_processing import ImageProcessor
 
     services = {}
 

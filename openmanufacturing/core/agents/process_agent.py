@@ -1,10 +1,10 @@
 import asyncio
 import logging
-from datetime import datetime
-from typing import Dict, Optional, Any
 from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any, Dict, Optional
 
-from ..process.workflow_manager import WorkflowManager, ProcessState
+from ..process.workflow_manager import ProcessState, WorkflowManager
 from .base_agent import BaseAgent
 
 logger = logging.getLogger(__name__)

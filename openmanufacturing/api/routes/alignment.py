@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
-from typing import Dict, List, Optional, Any
-from pydantic import BaseModel
 import uuid
+from typing import Any, Dict, List, Optional
 
-from ..dependencies import get_alignment_service, get_process_manager, get_current_active_user
-from ...core.alignment import AlignmentService, AlignmentParameters
-from ...core.process import WorkflowManager
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from pydantic import BaseModel
+
+from ...core.alignment import AlignmentParameters, AlignmentService
 from ...core.database.models import User
+from ...core.process import WorkflowManager
+from ..dependencies import get_alignment_service, get_current_active_user, get_process_manager
 
 router = APIRouter(prefix="/api/alignment", tags=["alignment"])
 

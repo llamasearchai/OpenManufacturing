@@ -1,17 +1,19 @@
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
-from unittest.mock import AsyncMock, MagicMock
+
+from openmanufacturing.api.dependencies import User as PydanticUser  # For /me endpoint response
+from openmanufacturing.api.dependencies import get_current_active_user, get_session
 
 # Assuming the main FastAPI app is in openmanufacturing.api.main
 # Adjust the import path according to your actual app structure if it differs.
 # The path to app would be from where `pytest` is run or how PYTHONPATH is set.
 # For poetry, if tests are run from `openmanufacturing` dir, this should work.
 from openmanufacturing.api.main import app
-from openmanufacturing.api.dependencies import get_session, get_current_active_user
 from openmanufacturing.core.database.models import User as DBUser
 from openmanufacturing.core.security import get_password_hash
-from openmanufacturing.api.dependencies import User as PydanticUser  # For /me endpoint response
 
 
 @pytest.fixture

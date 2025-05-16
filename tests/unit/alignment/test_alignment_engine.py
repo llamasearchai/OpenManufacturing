@@ -1,14 +1,17 @@
-import pytest
-import numpy as np
-from unittest.mock import MagicMock, AsyncMock, patch  # Use AsyncMock for async methods
 import asyncio  # Added for asyncio.create_task and sleep
+from unittest.mock import AsyncMock, MagicMock, patch  # Use AsyncMock for async methods
+
+import numpy as np
+import pytest
 
 # Assuming the new structure: openmanufacturing/src/openmanufacturing/core/...
 from openmanufacturing.core.alignment.alignment_engine import (
     AlignmentEngine,
     AlignmentParameters,
-    MockPosition as CoreMockPosition,
-)  # If MockPosition is from engine
+)
+from openmanufacturing.core.alignment.alignment_engine import (
+    MockPosition as CoreMockPosition,  # If MockPosition is from engine
+)
 from openmanufacturing.core.process.calibration import CalibrationProfile
 
 # The test defines its own MockMotionController, which is fine for isolating tests.

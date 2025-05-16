@@ -1,9 +1,10 @@
 import logging
 import os
-from typing import AsyncGenerator, Optional
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngine
-from sqlalchemy.orm import sessionmaker
 from contextlib import asynccontextmanager
+from typing import AsyncGenerator, Optional
+
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
 
 from .models import Base
 
@@ -94,8 +95,9 @@ async def init_db() -> None:
 
 async def create_initial_data() -> None:
     """Create initial database data"""
-    from .models import User
     from passlib.context import CryptContext
+
+    from .models import User
 
     # Only create initial data if admin user doesn't exist
     async with get_db_session() as session:

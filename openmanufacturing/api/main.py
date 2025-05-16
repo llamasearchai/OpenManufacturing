@@ -1,12 +1,13 @@
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
 import logging
+import os
 import time
 from typing import Callable
-import os
 
-from openmanufacturing.api.routes import alignment, devices, auth, workflow
+from fastapi import FastAPI, Request, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from openmanufacturing.api.routes import alignment, auth, devices, workflow
 from openmanufacturing.core.database.db import init_db
 
 # Configure logging
@@ -108,11 +109,12 @@ async def startup_event():
 async def shutdown_event():
     """Application shutdown tasks"""
     logger.info("Shutting down OpenManufacturing API")
-    
+
     # Close connections, cleanup, etc.
     # For example, stop any running alignment processes
     from openmanufacturing.api.dependencies import get_alignment_service
+
     # alignment_service = get_alignment_service() # Variable not used
-    get_alignment_service() # Call the function if it has side effects or to ensure it's covered
-    
+    get_alignment_service()  # Call the function if it has side effects or to ensure it's covered
+
     # Close any other resources

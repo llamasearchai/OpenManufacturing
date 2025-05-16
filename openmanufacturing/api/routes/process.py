@@ -1,22 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
-from typing import Dict, List, Optional, Any
-from pydantic import BaseModel
-import uuid
-from datetime import datetime
 import asyncio
 import logging
+import uuid
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from ..dependencies import get_process_manager, get_current_active_user, get_session
-from ...core.process.workflow_manager import WorkflowManager, ProcessState
+from ...core.database.models import ProcessInstance as DBProcessInstance
 from ...core.database.models import (
     User,
-    WorkflowTemplate as DBWorkflowTemplate,
-    ProcessInstance as DBProcessInstance,
 )
+from ...core.database.models import WorkflowTemplate as DBWorkflowTemplate
+from ...core.process.workflow_manager import ProcessState, WorkflowManager
+from ..dependencies import get_current_active_user, get_process_manager, get_session
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/process", tags=["process"])

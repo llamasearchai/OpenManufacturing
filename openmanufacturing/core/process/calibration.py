@@ -1,9 +1,10 @@
+import datetime
 import json
 import logging
 import os
+from typing import Any, Dict, Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Dict, Any, Optional
-import datetime
 
 logger = logging.getLogger(__name__)
 

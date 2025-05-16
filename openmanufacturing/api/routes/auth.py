@@ -1,28 +1,29 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request, BackgroundTasks
-from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel, EmailStr, Field, validator
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from datetime import datetime, timedelta
-import jwt
-from passlib.context import CryptContext
-from typing import Optional, List
-import secrets
 import logging
-from email.message import EmailMessage
 import re
-from redis.asyncio import Redis
+import secrets
+from datetime import datetime, timedelta
+from email.message import EmailMessage
+from typing import List, Optional
 
+import jwt
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from fastapi.security import OAuth2PasswordRequestForm
+from passlib.context import CryptContext
+from pydantic import BaseModel, EmailStr, Field, validator
+from redis.asyncio import Redis
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ...core.database.db import get_session
+from ...core.database.models import PasswordReset, User
 from ..dependencies import (
-    SECRET_KEY,
-    ALGORITHM,
     ACCESS_TOKEN_EXPIRE_MINUTES,
+    ALGORITHM,
+    SECRET_KEY,
     get_current_active_user,
     get_current_admin_user,
     get_redis_client,
 )
-from ...core.database.db import get_session
-from ...core.database.models import User, PasswordReset
 
 # Set up logger
 logger = logging.getLogger(__name__)

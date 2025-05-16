@@ -1,13 +1,10 @@
 import asyncio
 import logging
-from enum import Enum
-from typing import Dict, Optional
-import numpy as np
-
 import random
+from enum import Enum, auto
+from typing import Dict, Optional
 
-from enum import auto
-
+import numpy as np
 
 logger = logging.getLogger(__name__)
 

@@ -4,9 +4,8 @@ import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-
-from ..database.db import get_db_session # Changed back from get_session
-from ..database.models import ( # Added for F821
+from ..database.db import get_db_session  # Changed back from get_session
+from ..database.models import (  # Added for F821
     AlignmentResult,
     Device,
     ProcessInstance,

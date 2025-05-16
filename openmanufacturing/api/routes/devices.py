@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
-from typing import Optional
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
-from datetime import datetime
 import uuid
+from datetime import datetime
+from typing import Optional
 
-from ..dependencies import get_db, get_current_active_user
-from ..models.device import DeviceCreate, DeviceUpdate, DeviceResponse, DeviceList
-from ...core.database.models import Device, Batch, AlignmentResult, User
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ...core.database.models import AlignmentResult, Batch, Device, User
+from ..dependencies import get_current_active_user, get_db
+from ..models.device import DeviceCreate, DeviceList, DeviceResponse, DeviceUpdate
 
 router = APIRouter(prefix="/api/devices", tags=["devices"])
 

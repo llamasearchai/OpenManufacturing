@@ -1,14 +1,14 @@
-import time
 import logging
 import math
-from typing import Tuple, Dict, Optional
+import time
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
-import uuid
+from typing import Dict, Optional, Tuple
 
 from ..hardware.motion_controller import MotionController
 from ..process.calibration import CalibrationProfile
-from ..vision.image_processing import detect_fiber_position, detect_chip_waveguide
+from ..vision.image_processing import detect_chip_waveguide, detect_fiber_position
 
 logger = logging.getLogger(__name__)
 

@@ -4,12 +4,6 @@ OpenManufacturing API package.
 This package contains the FastAPI application, route definitions, and API dependencies.
 """
 
-from . import main
-from . import dependencies
-from . import routes
+from . import dependencies, main, routes
 
-__all__ = [
-    "main",
-    "dependencies",
-    "routes"
-]
+__all__ = ["main", "dependencies", "routes"]

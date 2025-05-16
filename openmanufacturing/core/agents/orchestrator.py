@@ -2,10 +2,10 @@ import asyncio
 import logging
 from typing import Dict, List, Optional
 
-from .base_agent import BaseAgent
+from ...integrations.ai.openai_client import OpenAIClient
 from ..alignment.alignment_engine import AlignmentEngine
 from ..process.workflow_manager import WorkflowManager
-from ...integrations.ai.openai_client import OpenAIClient
+from .base_agent import BaseAgent
 
 logger = logging.getLogger(__name__)
 

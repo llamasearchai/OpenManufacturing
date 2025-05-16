@@ -1,15 +1,16 @@
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-import jwt
-from jwt.exceptions import InvalidTokenError
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 import os
 from typing import Optional
 
+import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jwt.exceptions import InvalidTokenError
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from openmanufacturing.core.alignment.service import AlignmentService
 from openmanufacturing.core.database.db import get_session
 from openmanufacturing.core.database.models import User
-from openmanufacturing.core.alignment.service import AlignmentService
 from openmanufacturing.core.process.workflow_manager import WorkflowManager
 
 # JWT configuration
