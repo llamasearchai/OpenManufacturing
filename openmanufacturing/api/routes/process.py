@@ -405,12 +405,12 @@ async def list_process_instances_endpoint(
                 "current_step_id": inst.current_step_id,
                 "started_at": inst.started_at,
                 "completed_at": inst.completed_at,
-                "metadata": inst.metadata,
+                "metadata": inst.meta_data,
                 "step_results": inst.step_results,
                 "progress_percentage": 0.0,  # Placeholder, needs calculation logic
             }
-            if inst.metadata and "progress_percentage" in inst.metadata:
-                core_instance_data["progress_percentage"] = inst.metadata["progress_percentage"]
+            if inst.meta_data and "progress_percentage" in inst.meta_data:
+                core_instance_data["progress_percentage"] = inst.meta_data["progress_percentage"]
             elif inst.state == ProcessState.COMPLETED.name:
                 core_instance_data["progress_percentage"] = 100.0
 

@@ -3,6 +3,7 @@ import logging
 import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+import dataclasses
 
 from ..database.db import get_db_session  # Changed back from get_session
 from ..database.models import (  # Added for F821
@@ -41,7 +42,9 @@ class AlignmentService:
 
         # Create alignment engine
         self.engine = AlignmentEngine(
-            motion_controller=motion_controller, calibration_profile=calibration_profile
+            motion_controller=motion_controller,
+            image_processor=image_processor,
+            calibration_profile=calibration_profile
         )
 
         # Track active and completed alignments
@@ -82,7 +85,7 @@ class AlignmentService:
             "device_id": device_id,
             "process_id": process_id,
             "parameters": (
-                parameters.model_dump() if parameters else AlignmentParameters().model_dump()
+                dataclasses.asdict(parameters) if parameters else dataclasses.asdict(AlignmentParameters())
             ),
             "metadata": metadata or {},
             "status": "scheduled",  # Changed from "started" to "scheduled"
@@ -161,7 +164,7 @@ class AlignmentService:
                 "request_id": request_id,
                 "device_id": device_id,  # ensure device_id is available
                 "process_id": process_id,  # ensure process_id is available
-                "parameters": self.engine.parameters.model_dump(),
+                "parameters": dataclasses.asdict(self.engine.parameters),
                 "metadata": metadata or {},
                 "status": "completed",
                 "timestamp": datetime.now().isoformat(),
@@ -205,7 +208,7 @@ class AlignmentService:
                 "device_id": device_id,
                 "process_id": process_id,
                 "parameters": (
-                    parameters.model_dump() if parameters else AlignmentParameters().model_dump()
+                    dataclasses.asdict(parameters) if parameters else dataclasses.asdict(AlignmentParameters())
                 ),
                 "metadata": metadata or {},
                 "status": "failed",

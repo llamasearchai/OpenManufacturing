@@ -2,7 +2,7 @@ import asyncio
 import logging
 import random
 from enum import Enum, auto
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 import numpy as np
 
@@ -48,6 +48,8 @@ class MotionController:
         )
         self.port = port
         self.simulation_mode = simulation_mode or self.type == ControllerType.SIMULATED
+        self.controller: Any = None  # For actual controller instance
+        self.connected: bool = False
 
         # Current position and state
         self._position = {"x": 0.0, "y": 0.0, "z": 0.0}
@@ -159,11 +161,11 @@ class MotionController:
             success = self.controller.disconnect()
             if success:
                 self.connected = False
-                logger.info(f"Disconnected from {self.controller_type.name} motion controller")
+                logger.info(f"Disconnected from {self.type.name} motion controller")
                 return True
             else:
                 logger.error(
-                    f"Failed to disconnect from {self.controller_type.name} motion controller"
+                    f"Failed to disconnect from {self.type.name} motion controller"
                 )
                 return False
 

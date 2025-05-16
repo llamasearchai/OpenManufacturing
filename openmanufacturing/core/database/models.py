@@ -1,11 +1,12 @@
 import uuid
+from typing import Any
 
 from sqlalchemy import JSON, Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-Base = declarative_base()
+Base: Any = declarative_base()
 
 
 class User(Base):
@@ -25,6 +26,22 @@ class User(Base):
     last_login = Column(DateTime(timezone=True))
 
 
+class PasswordReset(Base):
+    """Password reset model"""
+
+    __tablename__ = "password_resets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    token = Column(String(100), unique=True, index=True, nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    is_used = Column(Boolean, default=False)
+    used_at = Column(DateTime(timezone=True))
+
+    user = relationship("User")
+
+
 class Batch(Base):
     """Production batch model"""
 
@@ -37,7 +54,7 @@ class Batch(Base):
     start_date = Column(DateTime(timezone=True))
     end_date = Column(DateTime(timezone=True))
     status = Column(String(20), default="pending")
-    metadata = Column(JSON)
+    meta_data = Column(JSON)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -94,7 +111,7 @@ class ProcessInstance(Base):
     step_results = Column(JSON)
     started_at = Column(DateTime(timezone=True))
     completed_at = Column(DateTime(timezone=True))
-    metadata = Column(JSON)
+    meta_data = Column(JSON)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     template = relationship("WorkflowTemplate", back_populates="process_instances")
@@ -119,7 +136,7 @@ class AlignmentResult(Base):
     iterations = Column(Integer)
     alignment_method = Column(String(50))
     error = Column(Text)
-    metadata = Column(JSON)
+    meta_data = Column(JSON)
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
 
     device = relationship("Device", back_populates="alignment_results")

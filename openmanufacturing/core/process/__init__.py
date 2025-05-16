@@ -5,7 +5,7 @@ This package contains classes for workflow and process management, calibration,
 and other manufacturing process-related functionality.
 """
 
-from .calibration import CalibrationProfile  # Assuming calibration.py already exists
+from .calibration import CalibrationProfile
 from .workflow_manager import (
     ProcessInstance,
     ProcessState,

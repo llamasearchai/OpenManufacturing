@@ -1,43 +1,58 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-Run script for the OpenManufacturing platform.
+OpenManufacturing platform startup script.
 
-This script starts the FastAPI server using uvicorn.
+This script starts the OpenManufacturing API server.
 """
+
+import argparse
+import asyncio
+import logging
+import sys
 
 import uvicorn
-import os
-import logging
-from dotenv import load_dotenv
 
-# Import the FastAPI app instance
-# This assumes your FastAPI app is defined in openmanufacturing/api/main.py
-from openmanufacturing.api.main import app
 
-# Load environment variables from .env file
-load_dotenv()
+def parse_args():
+    """Parse command-line arguments"""
+    parser = argparse.ArgumentParser(description="OpenManufacturing API Server")
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
+    parser.add_argument("--log-level", type=str, default="info", help="Logging level")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload (development)")
+    return parser.parse_args()
 
-# Configure logging
-LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
-logging.basicConfig(level=LOG_LEVEL)
-logger = logging.getLogger(__name__)
+
+def main():
+    """Main entry point"""
+    # Parse command-line arguments
+    args = parse_args()
+
+    # Configure logging
+    log_level = getattr(logging, args.log_level.upper(), logging.INFO)
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+
+    logger = logging.getLogger("openmanufacturing")
+    logger.info(f"Starting OpenManufacturing API on {args.host}:{args.port}")
+
+    # Start web server
+    try:
+        config = uvicorn.Config(
+            app="openmanufacturing.api.main:app",
+            host=args.host,
+            port=args.port,
+            log_level=args.log_level.lower(),
+            reload=args.reload
+        )
+        server = uvicorn.Server(config)
+        server.run()
+    except Exception as e:
+        logger.error(f"Error starting server: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    host = os.getenv("UVICORN_HOST", "0.0.0.0")
-    port = int(os.getenv("UVICORN_PORT", "8000"))
-    reload = os.getenv("UVICORN_RELOAD", "False").lower() == "true"
-    workers = int(os.getenv("UVICORN_WORKERS", "1"))
-
-    logger.info(f"Starting server on {host}:{port}")
-    if reload:
-        logger.info("Auto-reload enabled.")
-    if workers > 1 and not reload:
-        logger.info(f"Running with {workers} workers.")
-
-    uvicorn.run(
-        app,
-        host=host,
-        port=port,
-        reload=reload,
-        workers=workers if not reload else 1,  # Uvicorn reload mode works best with 1 worker
-    )
+    main()

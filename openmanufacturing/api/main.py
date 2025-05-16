@@ -17,11 +17,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger("api")
 
+# Store API version as a variable to use elsewhere
+API_VERSION = "1.0.0"
+
 # Create FastAPI app
 app = FastAPI(
     title="OpenManufacturing API",
     description="API for optical packaging automation platform",
-    version="1.0.0",
+    version=API_VERSION,
 )
 
 # Add CORS middleware
@@ -70,11 +73,10 @@ app.include_router(devices.router)
 app.include_router(alignment.router)
 app.include_router(workflow.router)
 
-
 @app.get("/api/health")
 async def health_check():
     """API health check endpoint"""
-    return {"status": "ok", "version": app.version}
+    return {"status": "ok", "version": API_VERSION}
 
 
 @app.on_event("startup")

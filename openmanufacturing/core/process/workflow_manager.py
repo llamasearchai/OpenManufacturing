@@ -42,17 +42,17 @@ class ProcessStep:
 class WorkflowTemplate:
     id: str
     name: str
-    description: Optional[str] = None
     version: str
     steps: List[ProcessStep]
+    description: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class ProcessInstance:
-    id: str = field(default_factory=lambda: str(uuid.uuid4()))
     template_id: str
     template_name: str
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))
     batch_id: Optional[str] = None
     state: ProcessState = ProcessState.PENDING
     current_step_id: Optional[str] = None
@@ -112,9 +112,9 @@ class WorkflowManager:
                 template = WorkflowTemplate(
                     id=db_template.id,
                     name=db_template.name,
-                    description=db_template.description,
                     version=db_template.version,
                     steps=steps,
+                    description=db_template.description,
                     metadata=db_template.metadata if hasattr(db_template, "metadata") else {},
                 )
                 self.templates[template.id] = template
@@ -144,9 +144,9 @@ class WorkflowManager:
                 template = WorkflowTemplate(
                     id=db_template.id,
                     name=db_template.name,
-                    description=db_template.description,
                     version=db_template.version,
                     steps=steps,
+                    description=db_template.description,
                     metadata=db_template.metadata if hasattr(db_template, "metadata") else {},
                 )
                 self.templates[template.id] = template
@@ -169,7 +169,7 @@ class WorkflowManager:
                 template_id=template.id,
                 batch_id=batch_id,
                 state=ProcessState.PENDING.name,
-                metadata=instance.metadata,
+                meta_data=instance.metadata,
             )
             session.add(db_instance)
             await session.commit()
@@ -410,7 +410,7 @@ class WorkflowManager:
                     "completed_at": (
                         db_instance.completed_at.isoformat() if db_instance.completed_at else None
                     ),
-                    "metadata": db_instance.metadata,
+                    "metadata": db_instance.meta_data,
                     "progress_percentage": 0.0,  # Cannot calculate without step data
                     "step_results": {},  # Would need to load step results
                 }

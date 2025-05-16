@@ -97,6 +97,24 @@ class AlignmentAgent(BaseAgent):
 
                         logger.info(f"Using AI-optimized parameters for device {device_id}")
 
+            # Use AI to suggest parameter optimizations
+            if self.openai_client and self.alignment_engine.parameters.use_machine_learning:
+                suggested_params = await self.openai_client.analyze_alignment_parameters(
+                    device_type=self.alignment_engine.parameters.device_type,
+                    alignment_history=self.alignment_engine.alignment_history[-5:],
+                )
+                if suggested_params:
+                    # Merge AI suggestions with provided parameters
+                    if not parameters:
+                        self.state.current_parameters = AlignmentParameters(**suggested_params)
+                    else:
+                        # Update only parameters not explicitly set
+                        for param, value in suggested_params.items():
+                            if param not in parameters.__dict__:
+                                setattr(self.state.current_parameters, param, value)
+
+                    logger.info(f"Using AI-suggested parameters for device {device_id}")
+
             # Execute the alignment
             result = await self.alignment_engine.align()
 

@@ -5,6 +5,7 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
+from redis.asyncio import Redis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,11 +19,22 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "development_secret_key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
+# Rate limiting configuration
+MAX_FAILED_ATTEMPTS = 5
+RATE_LIMIT_DURATION = 300  # seconds (5 minutes)
+
+# Redis configuration
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
 
 # Global service instances (initialized in the main application)
 _alignment_service: Optional[AlignmentService] = None
 _workflow_manager: Optional[WorkflowManager] = None
+_redis_client: Optional[Redis] = None
+
+# Alias for get_session for backward compatibility
+get_db = get_session
 
 
 def set_alignment_service(service: AlignmentService) -> None:
@@ -49,6 +61,23 @@ def get_process_manager() -> WorkflowManager:
     if _workflow_manager is None:
         raise RuntimeError("Workflow manager not initialized")
     return _workflow_manager
+
+
+def set_redis_client(client: Redis) -> None:
+    """Set the global Redis client instance"""
+    global _redis_client
+    _redis_client = client
+
+
+async def get_redis_client() -> Redis:
+    """Get the global Redis client instance"""
+    global _redis_client
+    
+    if _redis_client is None:
+        # Lazily initialize Redis client if not already done
+        _redis_client = Redis.from_url(REDIS_URL, decode_responses=False)
+    
+    return _redis_client
 
 
 async def get_current_user(
@@ -92,3 +121,4 @@ async def get_current_admin_user(current_user: User = Depends(get_current_user))
     """Get current admin user"""
     if not current_user.is_admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions")
+    return current_user

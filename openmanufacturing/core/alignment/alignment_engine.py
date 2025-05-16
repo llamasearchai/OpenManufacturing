@@ -4,11 +4,11 @@ import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Any
 
 from ..hardware.motion_controller import MotionController
 from ..process.calibration import CalibrationProfile
-from ..vision.image_processing import detect_chip_waveguide, detect_fiber_position
+from ..vision.image_processing import ImageProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,7 @@ class AlignmentParameters:
     fine_alignment_timeout: float = 60.0  # Seconds
     alignment_retry_attempts: int = 3
     optimization_strategy: str = "combined"  # "gradient", "spiral", or "combined"
+    device_type: Optional[str] = None
 
 
 class AlignmentEngine:
@@ -36,10 +37,12 @@ class AlignmentEngine:
     def __init__(
         self,
         motion_controller: MotionController,
+        image_processor: ImageProcessor,
         calibration_profile: CalibrationProfile,
         parameters: Optional[AlignmentParameters] = None,
     ):
         self.motion_controller = motion_controller
+        self.image_processor = image_processor
         self.calibration = calibration_profile
         self.parameters = parameters or AlignmentParameters()
         self.alignment_history = []
@@ -75,8 +78,8 @@ class AlignmentEngine:
 
         try:
             # Get current positions
-            fiber_position = await detect_fiber_position()
-            waveguide_position = await detect_chip_waveguide()
+            fiber_position = await self.image_processor.detect_fiber_position()
+            waveguide_position = await self.image_processor.detect_chip_waveguide()
 
             logger.debug(
                 f"Fiber position: {fiber_position}, Waveguide position: {waveguide_position}"
@@ -406,3 +409,53 @@ class AlignmentEngine:
                     break
 
         # Now search in
+
+    async def align(self) -> Dict[str, Any]:
+        """Performs the full alignment process: coarse then fine."""
+        logger.info(f"Starting full alignment process for engine ID: {self.id}")
+        overall_start_time = time.time()
+        full_history = []
+        final_success = False
+
+        coarse_success, coarse_result = await self.perform_coarse_alignment()
+        full_history.extend(self.alignment_history[-1:]) # Add most recent coarse result
+
+        fine_result = None
+        if coarse_success:
+            logger.info("Coarse alignment successful, proceeding to fine alignment.")
+            fine_success, fine_result_data = await self.perform_fine_alignment()
+            full_history.extend(self.alignment_history[-1:]) # Add most recent fine result
+            fine_result = fine_result_data
+            final_success = fine_success
+        else:
+            logger.warning("Coarse alignment failed. Skipping fine alignment.")
+            final_success = False
+        
+        overall_duration_ms = int((time.time() - overall_start_time) * 1000)
+        
+        return {
+            "success": final_success,
+            "is_aligned": self.is_aligned,
+            "coarse_alignment_result": coarse_result,
+            "fine_alignment_result": fine_result,
+            "alignment_history": full_history, # Or self.alignment_history for full engine history
+            "overall_duration_ms": overall_duration_ms,
+            "final_status_message": "Alignment process completed."
+        }
+
+    async def _calculate_gradient(self, current_position: Dict[str, float], step_size: float) -> Dict[str, float]:
+        """Placeholder for gradient calculation."""
+        # This should sample power at +/- step_size for each axis
+        # and return a dict like {"x": grad_x, "y": grad_y, "z": grad_z}
+        logger.debug(f"Calculating gradient at {current_position} with step {step_size}")
+        # Simulate gradient: move towards origin slightly
+        return {
+            "x": -current_position["x"] * 0.1, 
+            "y": -current_position["y"] * 0.1, 
+            "z": -current_position["z"] * 0.1
+        }
+
+    # The following stub was causing redefinition, it's removed.
+    # async def _spiral_search_alignment(self) -> Tuple[bool, Dict]:
+    #     # ... existing code ...
+    #     return False, result
